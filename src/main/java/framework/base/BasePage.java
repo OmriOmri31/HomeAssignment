@@ -1,6 +1,7 @@
 //This class gives page objects safe actions that wait before interacting
 package framework.base;
 
+import framework.pages.CreateBugPage;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
@@ -15,6 +16,9 @@ public abstract class BasePage {
     protected final AndroidDriver driver;
     protected final Duration explicitTimeout;
     protected final WebDriverWait wait;
+    protected final By createBugButton = textElement("Create Bug");
+    protected final By viewBugsButton = textElement("View Bugs");
+    protected final By homeButton = textElement("Home");
 
     /**
      * Constructs a page object.
@@ -146,6 +150,65 @@ public abstract class BasePage {
                 "new UiSelector().text(\"" + text + "\")");
     }
 
+    /**
+     * Normalizes input strings to prevent null values.
+     * @param s input string
+     * @return trimmed string or empty string if null
+     */
+    protected String normalize(String s) {
+        return s == null ? "" : s.trim();
+    }
 
+    /**
+     * Clicks the "Create Bug" button to navigate to CreateBugPage.
+     *
+     * @return new instance of CreateBugPage
+     */
+    public CreateBugPage clickCreateBug() {
+        click(createBugButton);
+        return new CreateBugPage(driver, explicitTimeout);
+    }
+
+    /**
+     * Clicks the "View Bugs" button to navigate to ViewBugsPage.
+     */
+    public void clickViewBugs() {
+        click(viewBugsButton);
+    }
+
+    /**
+     * Clicks the "Home" button to navigate to HomePage.
+     */
+    public void clickHome() {
+        click(homeButton);
+    }
+
+    /**
+     * Checks if the Create Bug button is visible.
+     *
+     * @return true if visible, false otherwise
+     */
+    public boolean isCreateBugButtonVisible() {
+        return isVisible(createBugButton);
+    }
+
+    /**
+     * Checks if the View Bugs button is visible.
+     *
+     * @return true if visible, false otherwise
+     */
+    public boolean isViewBugsButtonVisible() {
+        return isVisible(viewBugsButton);
+    }
+
+    /**
+     * Gets the text from the Create Bug button.
+     *
+     * @return button text
+     */
+    public String getCreateBugButtonText() {
+        return text(createBugButton);
+    }
 }
+
 

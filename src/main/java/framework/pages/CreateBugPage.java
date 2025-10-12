@@ -240,13 +240,4 @@ public class CreateBugPage extends BasePage {
         click(option);
         return this;
     }
-
-    /**
-     * Normalizes input strings to prevent null values.
-     * @param s input string
-     * @return trimmed string or empty string if null
-     */
-    private String normalize(String s) {
-        return s == null ? "" : s.trim();
-    }
 }
