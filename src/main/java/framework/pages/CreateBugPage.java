@@ -202,6 +202,9 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage pickDateClosed(String date) {
+        if(!isVisible(bugDateClosed)) {
+            scroll("down");
+        }
         datePicker.pick(bugDateClosed, date);
         return this;
     }

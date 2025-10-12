@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import org.openqa.selenium.TimeoutException;
 
+
 /** Base class for screen objects; provides safe waits and interactions. */
 public abstract class BasePage {
     protected final AndroidDriver driver;
@@ -208,6 +209,55 @@ public abstract class BasePage {
      */
     public String getCreateBugButtonText() {
         return text(createBugButton);
+    }
+
+    /**
+     * Scrolls the screen in the specified direction for exactly two swipes.
+     * @param direction "up" or "down" (case-insensitive)
+     *                  "up" = scroll content up (finger swipes down)
+     *                  "down" = scroll content down (finger swipes up)
+     * @throws IllegalArgumentException if direction is not "up" or "down"
+     */
+    protected void scroll(String direction) {
+        String normalized = normalize(direction).toLowerCase();
+        if (!normalized.equals("up") && !normalized.equals("down")) {
+            throw new IllegalArgumentException("Direction must be 'up' or 'down'");
+        }
+
+        int width = driver.manage().window().getSize().getWidth();
+        int height = driver.manage().window().getSize().getHeight();
+        int centerX = width / 2;
+        int startY = normalized.equals("down") ? height * 3 / 4 : height / 4;
+        int endY = normalized.equals("down") ? height / 4 : height * 3 / 4;
+
+        for (int i = 0; i < 2; i++) {
+            performSwipe(centerX, startY, centerX, endY);
+        }
+    }
+
+    /**
+     * Performs a single swipe gesture from start point to end point.
+     * @param startX starting X coordinate
+     * @param startY starting Y coordinate
+     * @param endX ending X coordinate
+     * @param endY ending Y coordinate
+     */
+    private void performSwipe(int startX, int startY, int endX, int endY) {
+        org.openqa.selenium.interactions.PointerInput finger =
+                new org.openqa.selenium.interactions.PointerInput(
+                        org.openqa.selenium.interactions.PointerInput.Kind.TOUCH, "finger");
+
+        org.openqa.selenium.interactions.Sequence swipe =
+                new org.openqa.selenium.interactions.Sequence(finger, 1);
+
+        swipe.addAction(finger.createPointerMove(Duration.ZERO,
+                org.openqa.selenium.interactions.PointerInput.Origin.viewport(), startX, startY));
+        swipe.addAction(finger.createPointerDown(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(500),
+                org.openqa.selenium.interactions.PointerInput.Origin.viewport(), endX, endY));
+        swipe.addAction(finger.createPointerUp(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(java.util.Collections.singletonList(swipe));
     }
 }
 
