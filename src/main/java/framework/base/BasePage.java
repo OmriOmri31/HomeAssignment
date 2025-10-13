@@ -35,8 +35,9 @@ public abstract class BasePage {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
-    protected void click(By locator){
+    public void click(By locator){
         WebElement element = waitClickable(locator);
+        scrollIntoViewIfNeeded(locator);
         element.click();
     }
 
@@ -144,7 +145,7 @@ public abstract class BasePage {
         performSwipe(centerX, startY, centerX, endY);
     }
 
-    protected void scrollIntoViewIfNeeded(By locator) {
+    public void scrollIntoViewIfNeeded(By locator) {
         if (isVisible(locator)) return;
         scroll("down"); if (isVisible(locator)) return;
         scroll("up"); if (isVisible(locator)) return;
@@ -167,4 +168,5 @@ public abstract class BasePage {
 
         driver.perform(java.util.Collections.singletonList(swipe));
     }
+
 }

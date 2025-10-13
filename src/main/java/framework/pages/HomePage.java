@@ -14,7 +14,7 @@ public class HomePage extends BasePage {
         this.screenRoot = resourceId("homePage");
     }
 
-    public boolean verifyHomePage() {
+    public boolean assertOnPage() {
         return assertOnPage(screenRoot);
     }
 }

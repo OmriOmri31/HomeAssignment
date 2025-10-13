@@ -26,4 +26,9 @@ public final class Config {
     public static int getInt(String key) {
         return Integer.parseInt(get(key));
     }
+
+    public static String getOrNull(String key) {
+        String v = PROPS.getProperty(key);
+        return v == null ? null : v.trim();
+    }
 }

@@ -98,6 +98,7 @@ public class ViewBugsPage extends BasePage {
     }
 
     public ViewBugsPage editBugById(String idText) {
+        updateBugList();
         for (int i = 0; i < bugList.length; i++) {
             if (extractId(bugList[i]).equals(idText)) {
                 click(io.appium.java_client.AppiumBy.androidUIAutomator(

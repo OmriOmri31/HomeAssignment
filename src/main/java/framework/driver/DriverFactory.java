@@ -39,13 +39,24 @@ public final class DriverFactory {
                 .setAutomationName(Config.get("automationName"))
                 .setDeviceName(Config.get("deviceName"))
                 .setPlatformVersion(Config.get("platformVersion"))
-                .setApp(appAbsolute)
                 .setNewCommandTimeout(Duration.ofSeconds(120))
                 .setAutoGrantPermissions(true);
 
+        String appPackage = Config.getOrNull("app.package");
+        String appActivity = Config.getOrNull("app.activity");
+        String noReset = Config.getOrNull("noReset");
+        if (noReset != null && noReset.equalsIgnoreCase("true")) {
+            options.setNoReset(true);
+        }
+        if (appPackage != null && appActivity != null) {
+            options.setAppPackage(appPackage).setAppActivity(appActivity);
+        } else {
+            options.setApp(appAbsolute);
+        }
+
         try {
             AndroidDriver drv = new AndroidDriver(new URL(Config.get("server.url")), options);
-            drv.manage().timeouts().implicitlyWait(Duration.ZERO); // explicit waits only
+            drv.manage().timeouts().implicitlyWait(Duration.ZERO);
             return drv;
         } catch (Exception e) {
             throw new RuntimeException("Failed to start AndroidDriver. Is Appium running? " +
