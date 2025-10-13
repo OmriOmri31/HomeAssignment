@@ -69,6 +69,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterBugId(String value) {
+        scrollIfNeeded(bugId);
         String normalized = normalize(value);
 
         // Wait for element
@@ -105,6 +106,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage pickDate(String date) {
+        scrollIfNeeded(bugDate);
         datePicker.pick(bugDate, date);
         return this;
     }
@@ -115,6 +117,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterTitle(String value) {
+        scrollIfNeeded(bugTitle);
         type(bugTitle, normalize(value));
         return this;
     }
@@ -125,6 +128,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterSteps(String value) {
+        scrollIfNeeded(bugSteps);
         type(bugSteps, normalize(value));
         return this;
     }
@@ -135,6 +139,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterExpected(String value) {
+        scrollIfNeeded(bugExpectedResult);
         type(bugExpectedResult, normalize(value));
         return this;
     }
@@ -145,6 +150,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterActual(String value) {
+        scrollIfNeeded(bugActualResult);
         type(bugActualResult, normalize(value));
         return this;
     }
@@ -155,6 +161,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage setStatus(String value) {
+        scrollIfNeeded(bugStatus);
         return selectDropdownOption(bugStatus, normalize(value), "Status");
     }
 
@@ -164,6 +171,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage setSeverity(String value) {
+        scrollIfNeeded(bugSeverity);
         return selectDropdownOption(bugSeverity, normalize(value), "Severity");
     }
 
@@ -173,6 +181,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage setPriority(String value) {
+        scrollIfNeeded(bugPriority);
         return selectDropdownOption(bugPriority, normalize(value), "Priority");
     }
 
@@ -182,6 +191,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage setDetectedBy(String value) {
+        scrollIfNeeded(bugDetectedBy);
         type(bugDetectedBy, normalize(value));
         return this;
     }
@@ -192,6 +202,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage setFixedBy(String value) {
+        scrollIfNeeded(bugFixedBy);
         type(bugFixedBy, normalize(value));
         return this;
     }
@@ -202,17 +213,24 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage pickDateClosed(String date) {
-        if(!isVisible(bugDateClosed)) {
-            scroll("down");
-        }
+        scrollIfNeeded(bugDateClosed);
         datePicker.pick(bugDateClosed, date);
         return this;
+    }
+    private void scrollIfNeeded(By element) {
+        if(!isVisible(element)) {
+            scroll("down");
+        }
+        if(!isVisible(element)) {
+            scroll("up");
+        }
     }
 
     /**
      * Submits the bug creation form.
      */
     public void submit() {
+        scrollIfNeeded(addBugButton);
         click(addBugButton);
     }
 

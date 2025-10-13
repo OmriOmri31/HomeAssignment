@@ -2,6 +2,7 @@
 package framework.base;
 
 import framework.pages.CreateBugPage;
+import framework.pages.ViewBugsPage;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
@@ -49,6 +50,12 @@ public abstract class BasePage {
      * @throws org.openqa.selenium.TimeoutException if not clickable within timeout
      */
     protected WebElement waitClickable(By locator){
+        if(!isVisible(locator)) {
+            scroll("down");
+        }
+        if(!isVisible(locator)) {
+            scroll("up");
+        }
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
@@ -166,15 +173,19 @@ public abstract class BasePage {
      * @return new instance of CreateBugPage
      */
     public CreateBugPage clickCreateBug() {
+
         click(createBugButton);
         return new CreateBugPage(driver, explicitTimeout);
     }
 
     /**
      * Clicks the "View Bugs" button to navigate to ViewBugsPage.
+     *
+     * @return new instance of ViewBugsPage
      */
-    public void clickViewBugs() {
+    public ViewBugsPage clickViewBugs() {
         click(viewBugsButton);
+        return new ViewBugsPage(driver, explicitTimeout);
     }
 
     /**
@@ -212,13 +223,13 @@ public abstract class BasePage {
     }
 
     /**
-     * Scrolls the screen in the specified direction for exactly two swipes.
+     * Scrolls the screen in the specified direction for exactly one swipe.
      * @param direction "up" or "down" (case-insensitive)
      *                  "up" = scroll content up (finger swipes down)
      *                  "down" = scroll content down (finger swipes up)
      * @throws IllegalArgumentException if direction is not "up" or "down"
      */
-    protected void scroll(String direction) {
+    public void scroll(String direction) {
         String normalized = normalize(direction).toLowerCase();
         if (!normalized.equals("up") && !normalized.equals("down")) {
             throw new IllegalArgumentException("Direction must be 'up' or 'down'");
@@ -227,12 +238,22 @@ public abstract class BasePage {
         int width = driver.manage().window().getSize().getWidth();
         int height = driver.manage().window().getSize().getHeight();
         int centerX = width / 2;
-        int startY = normalized.equals("down") ? height * 3 / 4 : height / 4;
-        int endY = normalized.equals("down") ? height / 4 : height * 3 / 4;
 
-        for (int i = 0; i < 2; i++) {
-            performSwipe(centerX, startY, centerX, endY);
+        int startY, endY;
+
+        if (normalized.equals("down")) {
+            // Scrolling down: swipe from bottom to top
+            startY = height * 3 / 4;  // Start at 75%
+            endY = height / 4;         // End at 25%
+        } else {
+            // Scrolling up: swipe from middle to slightly below middle
+            // Keep the swipe in the safe zone (middle 50% of screen)
+            startY = height / 2;           // Start at 50% (middle)
+            endY = height * 65 / 100;      // End at 65% (only 15% swipe distance)
         }
+
+        performSwipe(centerX, startY, centerX, endY);
+        performSwipe(centerX, startY, centerX, endY);
     }
 
     /**
@@ -253,7 +274,7 @@ public abstract class BasePage {
         swipe.addAction(finger.createPointerMove(Duration.ZERO,
                 org.openqa.selenium.interactions.PointerInput.Origin.viewport(), startX, startY));
         swipe.addAction(finger.createPointerDown(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
-        swipe.addAction(finger.createPointerMove(Duration.ofMillis(500),
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(200),  // Slower for more control
                 org.openqa.selenium.interactions.PointerInput.Origin.viewport(), endX, endY));
         swipe.addAction(finger.createPointerUp(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
 
