@@ -64,7 +64,6 @@ class CreateBugPageTests {
                     .submit();
 
             viewBug = newBug.clickViewBugs();
-
             assertTrue(viewBug.assertOnPage(), "Should navigate to ViewBugs page .");
             viewBug.clickButtonAll();
             viewBug.searchForBugs(bugTitle);
