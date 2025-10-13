@@ -26,11 +26,6 @@ public class EditBugPage extends BasePage {
     private final By cancelEditing;
     private final AndroidDatePicker datePicker;
 
-    /**
-     * Constructs the CreateBugPage.
-     * @param driver Android driver for interactions (non-null)
-     * @param explicitTimeout max wait per explicit condition
-     */
     public EditBugPage(AndroidDriver driver, Duration explicitTimeout) {
         super(driver, explicitTimeout);
 
@@ -52,163 +47,83 @@ public class EditBugPage extends BasePage {
         this.datePicker = new AndroidDatePicker(driver, explicitTimeout);
     }
 
-    /**
-     * Verifies that the Create Bug page is displayed.
-     * @return true if page is visible, false otherwise
-     */
     public boolean assertOnPage() {
         return assertOnPage(screenRoot);
     }
 
-
-    /**
-     * Selects a date using the date picker.
-     * @param date date in dd/MM/yyyy format
-     * @return this CreateBugPage instance
-     */
     public EditBugPage pickDate(String date) {
-        scrollIfNeeded(bugDate);
+        scrollIntoViewIfNeeded(bugDate);
         datePicker.pick(bugDate, date);
         return this;
     }
 
-    /**
-     * Enters the bug title.
-     * @param value bug title
-     * @return this CreateBugPage instance
-     */
     public EditBugPage enterTitle(String value) {
-        scrollIfNeeded(bugTitle);
+        scrollIntoViewIfNeeded(bugTitle);
         type(bugTitle, normalize(value));
         return this;
     }
 
-    /**
-     * Enters the steps to recreate the bug.
-     * @param value steps description
-     * @return this CreateBugPage instance
-     */
     public EditBugPage enterSteps(String value) {
-        scrollIfNeeded(bugSteps);
+        scrollIntoViewIfNeeded(bugSteps);
         type(bugSteps, normalize(value));
         return this;
     }
 
-    /**
-     * Enters the expected result.
-     * @param value expected result description
-     * @return this CreateBugPage instance
-     */
     public EditBugPage enterExpected(String value) {
-        scrollIfNeeded(bugExpectedResult);
+        scrollIntoViewIfNeeded(bugExpectedResult);
         type(bugExpectedResult, normalize(value));
         return this;
     }
 
-    /**
-     * Enters the actual result.
-     * @param value actual result description
-     * @return this CreateBugPage instance
-     */
     public EditBugPage enterActual(String value) {
-        scrollIfNeeded(bugActualResult);
+        scrollIntoViewIfNeeded(bugActualResult);
         type(bugActualResult, normalize(value));
         return this;
     }
 
-    /**
-     * Sets the bug status from dropdown.
-     * @param value status option (e.g., "Open", "Fixed", "Closed")
-     * @return this CreateBugPage instance
-     */
     public EditBugPage setStatus(String value) {
-        scrollIfNeeded(bugStatus);
+        scrollIntoViewIfNeeded(bugStatus);
         return selectDropdownOption(bugStatus, normalize(value), "Status");
     }
 
-    /**
-     * Sets the bug severity from dropdown.
-     * @param value severity option (e.g., "Critical", "Major", "Minor")
-     * @return this CreateBugPage instance
-     */
     public EditBugPage setSeverity(String value) {
-        scrollIfNeeded(bugSeverity);
+        scrollIntoViewIfNeeded(bugSeverity);
         return selectDropdownOption(bugSeverity, normalize(value), "Severity");
     }
 
-    /**
-     * Sets the bug priority from dropdown.
-     * @param value priority option (e.g., "High", "Medium", "Low")
-     * @return this CreateBugPage instance
-     */
     public EditBugPage setPriority(String value) {
-        scrollIfNeeded(bugPriority);
+        scrollIntoViewIfNeeded(bugPriority);
         return selectDropdownOption(bugPriority, normalize(value), "Priority");
     }
 
-    /**
-     * Enters the name of the person who detected the bug.
-     * @param value detector name
-     * @return this CreateBugPage instance
-     */
     public EditBugPage setDetectedBy(String value) {
-        scrollIfNeeded(bugDetectedBy);
+        scrollIntoViewIfNeeded(bugDetectedBy);
         type(bugDetectedBy, normalize(value));
         return this;
     }
 
-    /**
-     * Enters the name of the person who fixed the bug.
-     * @param value fixer name
-     * @return this CreateBugPage instance
-     */
     public EditBugPage setFixedBy(String value) {
-        scrollIfNeeded(bugFixedBy);
+        scrollIntoViewIfNeeded(bugFixedBy);
         type(bugFixedBy, normalize(value));
         return this;
     }
 
-    /**
-     * Selects the date the bug was closed.
-     * @param date date in dd/MM/yyyy format
-     * @return this CreateBugPage instance
-     */
     public EditBugPage pickDateClosed(String date) {
-        scrollIfNeeded(bugDateClosed);
+        scrollIntoViewIfNeeded(bugDateClosed);
         datePicker.pick(bugDateClosed, date);
         return this;
     }
-    private void scrollIfNeeded(By element) {
-        if(!isVisible(element)) {
-            scroll("down");
-        }
-        if(!isVisible(element)) {
-            scroll("up");
-        }
-    }
 
-    /**
-     * Submits the edited bug form.
-     */
     public void save() {
-        scrollIfNeeded(saveChanges);
+        scrollIntoViewIfNeeded(saveChanges);
         click(saveChanges);
     }
 
-    /**
-     * Clicking Cancel changes
-     */
     public void cancel() {
-        scrollIfNeeded(cancelEditing);
+        scrollIntoViewIfNeeded(cancelEditing);
         click(cancelEditing);
     }
-    /**
-     * Selects an option from a dropdown/spinner field.
-     * @param field the dropdown field locator
-     * @param value the option text to select
-     * @param fieldName field name for error messages
-     * @return this CreateBugPage instance
-     */
+
     private EditBugPage selectDropdownOption(By field, String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " value must not be blank");

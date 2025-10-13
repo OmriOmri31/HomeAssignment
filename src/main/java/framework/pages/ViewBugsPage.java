@@ -5,11 +5,11 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * Page object for the "View Bugs" screen.
- */
 public class ViewBugsPage extends BasePage {
 
     private final By screenRoot;
@@ -24,12 +24,6 @@ public class ViewBugsPage extends BasePage {
     private final By buttonEdit;
     private final By buttonDelete;
 
-    /**
-     * Constructs the ViewBugsPage.
-     *
-     * @param driver          Android driver for interactions (non-null)
-     * @param explicitTimeout max wait per explicit condition
-     */
     public ViewBugsPage(AndroidDriver driver, Duration explicitTimeout) {
         super(driver, explicitTimeout);
         this.screenRoot = resourceId("viewBugsPage");
@@ -45,76 +39,40 @@ public class ViewBugsPage extends BasePage {
         this.bugList = new String[]{};
     }
 
-    /**
-     * Verifies that the View Bugs page is displayed.
-     *
-     * @return true if page is visible, false otherwise
-     */
     public boolean assertOnPage() {
         return assertOnPage(screenRoot);
     }
 
-    /**
-     * Searches for bugs using the search input field.
-     *
-     * @param value search query
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage searchForBugs(String value) {
         type(searchBugs, normalize(value));
         updateBugList();
         return this;
     }
 
-    /**
-     * Clicks the "All" filter button to show all bugs.
-     *
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage clickButtonAll() {
         click(buttonAll);
         updateBugList();
         return this;
     }
 
-    /**
-     * Clicks the "Open" filter button to show only open bugs.
-     *
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage clickButtonOpen() {
         click(buttonOpen);
         updateBugList();
         return this;
     }
 
-    /**
-     * Clicks the "Fixed" filter button to show only fixed bugs.
-     *
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage clickButtonFixed() {
         click(buttonFixed);
         updateBugList();
         return this;
     }
 
-    /**
-     * Clicks the "Closed" filter button to show only closed bugs.
-     *
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage clickButtonClosed() {
         click(buttonClosed);
         updateBugList();
         return this;
     }
 
-    /**
-     * Clicks the "Not a Bug" filter button.
-     *
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage clickNotABug() {
         click(notABug);
         updateBugList();
@@ -131,13 +89,6 @@ public class ViewBugsPage extends BasePage {
                 .toArray(String[]::new);
     }
 
-    /**
-     * Edits the first bug found with the given title.
-     * Searches for the bug first, then clicks the Edit button.
-     *
-     * @param value bug title to search for
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage editBugByTitle(String value) {
         type(searchBugs, normalize(value));
         updateBugList();
@@ -146,32 +97,17 @@ public class ViewBugsPage extends BasePage {
         return this;
     }
 
-    /**
-     * Edits a bug by its ID.
-     * Searches through the bug list to find the matching ID, then clicks its Edit button.
-     *
-     * @param id bug ID (supports decimal values like 123.0 or 456.5)
-     * @return this ViewBugsPage instance
-     * @throws IllegalArgumentException if bug with given ID is not found
-     */
-    public ViewBugsPage editBugById(double id) {
+    public ViewBugsPage editBugById(String idText) {
         for (int i = 0; i < bugList.length; i++) {
-            if (bugList[i].contains("ID: " + id)) {
+            if (extractId(bugList[i]).equals(idText)) {
                 click(io.appium.java_client.AppiumBy.androidUIAutomator(
                         "new UiSelector().text(\"Edit\").instance(" + i + ")"));
                 return this;
             }
         }
-        throw new IllegalArgumentException(String.format("Bug with ID: %s not found", id));
+        throw new IllegalArgumentException("Bug with ID: " + idText + " not found");
     }
 
-    /**
-     * Deletes the first bug found with the given title.
-     * Searches for the bug first, then clicks the Delete button.
-     *
-     * @param value bug title to search for
-     * @return this ViewBugsPage instance
-     */
     public ViewBugsPage deleteBugByTitle(String value) {
         type(searchBugs, normalize(value));
         updateBugList();
@@ -180,41 +116,39 @@ public class ViewBugsPage extends BasePage {
         return this;
     }
 
-    /**
-     * Deletes a bug by its ID.
-     * Searches through the bug list to find the matching ID, then clicks its Delete button.
-     *
-     * @param id bug ID (supports decimal values like 123.0 or 456.5)
-     * @return this ViewBugsPage instance
-     * @throws IllegalArgumentException if bug with given ID is not found
-     */
-    public ViewBugsPage deleteBugById(double id) {
+    public ViewBugsPage deleteBugById(String idText) {
         for (int i = 0; i < bugList.length; i++) {
-            if (bugList[i].contains("ID: " + id)) {
+            if (extractId(bugList[i]).equals(idText)) {
                 click(io.appium.java_client.AppiumBy.androidUIAutomator(
                         "new UiSelector().text(\"Delete\").instance(" + i + ")"));
                 return this;
             }
         }
-        throw new IllegalArgumentException(String.format("Bug with ID: %s not found", id));
+        throw new IllegalArgumentException("Bug with ID: " + idText + " not found");
     }
 
-    /**
-     * Gets the current bug list array.
-     * Useful for verification in tests.
-     *
-     * @return array of bug strings from the list
-     */
+    @Deprecated
+    public ViewBugsPage editBugById(double id) { return editBugById(formatId(id)); }
+
+    @Deprecated
+    public ViewBugsPage deleteBugById(double id) { return deleteBugById(formatId(id)); }
+
     public String[] getBugList() {
         return bugList;
     }
 
-    /**
-     * Gets the count of bugs currently displayed in the list.
-     *
-     * @return number of bugs in the list
-     */
     public int getBugCount() {
         return bugList.length;
+    }
+
+    private static String formatId(double id) {
+        if (id == Math.rint(id)) return String.valueOf((long) id);
+        return BigDecimal.valueOf(id).stripTrailingZeros().toPlainString();
+    }
+
+    private static String extractId(String s) {
+        Matcher m = Pattern.compile("\\bID:\\s*([^\\s\\)]+)").matcher(s);
+        if (m.find()) return m.group(1);
+        throw new IllegalStateException("Unable to parse ID from: " + s);
     }
 }

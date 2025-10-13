@@ -9,26 +9,28 @@ import java.nio.file.Paths;
 import java.time.Duration;
 
 public final class DriverFactory {
-    private static AndroidDriver driver;
+    private static final ThreadLocal<AndroidDriver> DRIVER = new ThreadLocal<>();
 
     private DriverFactory() {}
 
     public static AndroidDriver getDriver() {
-        if (driver == null) {
-            driver = create();
+        AndroidDriver d = DRIVER.get();
+        if (d == null) {
+            d = create();
+            DRIVER.set(d);
         }
-        return driver;
+        return d;
     }
 
     public static void quitDriver() {
-        if (driver != null) {
-            driver.quit();
-            driver = null;
+        AndroidDriver d = DRIVER.get();
+        if (d != null) {
+            d.quit();
+            DRIVER.remove();
         }
     }
 
     private static AndroidDriver create() {
-        // Resolve APK to an absolute path so Appium doesn't depend on your working dir
         String appRelative = Config.get("app.path");
         String appAbsolute = Paths.get(appRelative).toAbsolutePath().toString();
 
@@ -38,14 +40,12 @@ public final class DriverFactory {
                 .setDeviceName(Config.get("deviceName"))
                 .setPlatformVersion(Config.get("platformVersion"))
                 .setApp(appAbsolute)
-                // optional nice defaults:
                 .setNewCommandTimeout(Duration.ofSeconds(120))
                 .setAutoGrantPermissions(true);
 
         try {
             AndroidDriver drv = new AndroidDriver(new URL(Config.get("server.url")), options);
-            // small implicit to smooth out element presence
-            drv.manage().timeouts().implicitlyWait(Duration.ZERO);
+            drv.manage().timeouts().implicitlyWait(Duration.ZERO); // explicit waits only
             return drv;
         } catch (Exception e) {
             throw new RuntimeException("Failed to start AndroidDriver. Is Appium running? " +
