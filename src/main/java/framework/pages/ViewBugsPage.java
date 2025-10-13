@@ -122,10 +122,8 @@ public class ViewBugsPage extends BasePage {
     }
 
     private void updateBugList() {
-        // Add small wait for list to refresh after filter/search
-        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-
         WebElement list = waitVisible(bugListLocator);
+        wait.until(d -> !list.findElements(io.appium.java_client.AppiumBy.className("android.widget.TextView")).isEmpty());
         this.bugList = list.findElements(io.appium.java_client.AppiumBy.className("android.widget.TextView"))
                 .stream()
                 .map(org.openqa.selenium.WebElement::getText)

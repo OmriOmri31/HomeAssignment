@@ -5,6 +5,7 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -37,14 +38,13 @@ public class AndroidDatePicker extends BasePage {
         LocalDate date = LocalDate.parse(dateStr, INPUT_FORMAT);
 
         click(dateField);
-        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        waitVisible(yearHeader);
 
         selectYear(date.getYear());
         selectMonthAndDay(date.getMonthValue(), date.getDayOfMonth());
 
         click(setButton);
-        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-    }
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(yearHeader));    }
 
     private void selectYear(int year) {
         // Open year list

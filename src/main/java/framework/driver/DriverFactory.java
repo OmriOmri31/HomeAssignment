@@ -45,8 +45,7 @@ public final class DriverFactory {
         try {
             AndroidDriver drv = new AndroidDriver(new URL(Config.get("server.url")), options);
             // small implicit to smooth out element presence
-            drv.manage().timeouts().implicitlyWait(
-                    Duration.ofSeconds(Config.getInt("implicitTimeoutSec")));
+            drv.manage().timeouts().implicitlyWait(Duration.ZERO);
             return drv;
         } catch (Exception e) {
             throw new RuntimeException("Failed to start AndroidDriver. Is Appium running? " +
