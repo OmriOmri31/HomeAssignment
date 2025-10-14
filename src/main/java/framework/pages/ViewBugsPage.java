@@ -135,6 +135,7 @@ public class ViewBugsPage extends BasePage {
     public ViewBugsPage deleteBugById(double id) { return deleteBugById(formatId(id)); }
 
     public String[] getBugList() {
+        updateBugList();
         return bugList;
     }
 
