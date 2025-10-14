@@ -5,6 +5,8 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import java.util.Locale;
  * Expects dates in dd/MM/yyyy format.
  */
 public class AndroidDatePicker extends BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(AndroidDatePicker.class);
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final By yearHeader;
@@ -48,6 +51,7 @@ public class AndroidDatePicker extends BasePage {
      * @throws IllegalStateException if date picker UI structure has changed
      */
     public void pick(By dateField, String dateStr) {
+        logger.info("Selecting date: {}", dateStr);
         LocalDate date = LocalDate.parse(dateStr, INPUT_FORMAT);
         click(dateField);
         waitVisible(yearHeader);
@@ -57,6 +61,7 @@ public class AndroidDatePicker extends BasePage {
 
         click(setButton);
         wait.until(ExpectedConditions.invisibilityOfElementLocated(yearHeader));
+        logger.info("Date selected successfully: {}", dateStr);
     }
 
     /**
@@ -67,6 +72,7 @@ public class AndroidDatePicker extends BasePage {
      * @throws IllegalStateException if year header is not numeric or year cannot be found
      */
     private void selectYear(int year) {
+        logger.debug("Navigating to year: {}", year);
         click(yearHeader);
         waitVisible(yearList);
 

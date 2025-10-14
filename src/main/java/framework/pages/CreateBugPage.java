@@ -6,11 +6,14 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
 /** Page object for the "Create Bug" screen. */
 public class CreateBugPage extends BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(CreateBugPage.class);
 
     private final By screenRoot;
     private final By bugId;
@@ -69,6 +72,7 @@ public class CreateBugPage extends BasePage {
      * @return this CreateBugPage instance
      */
     public CreateBugPage enterBugId(String value) {
+        logger.debug("Entering bug ID: {}", value);
         scrollIfNeeded(bugId);
         String normalized = normalize(value);
 
@@ -89,11 +93,11 @@ public class CreateBugPage extends BasePage {
 
         try { Thread.sleep(300); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
-        // Hide keyboard
+
         try {
             driver.hideKeyboard();
         } catch (Exception e) {
-            // Keyboard might already be hidden
+            logger.debug("Keyboard already hidden or error dismissing: {}", e.getMessage());
         }
 
         return this;
@@ -229,6 +233,7 @@ public class CreateBugPage extends BasePage {
      * Submits the bug creation form.
      */
     public void submit() {
+        logger.info("Submitting bug creation form");
         scrollIfNeeded(addBugButton);
         click(addBugButton);
     }

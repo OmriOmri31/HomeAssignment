@@ -1,17 +1,23 @@
 package framework.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Properties;
 
 public final class Config {
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static final Properties PROPS = new Properties();
 
     static {
         try (InputStream in = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (in == null) throw new IllegalStateException("config.properties not found on classpath");
             PROPS.load(in);
+            logger.info("Configuration loaded successfully - {} properties found", PROPS.size());
         } catch (Exception e) {
+            logger.error("Failed to load config.properties", e);
             throw new RuntimeException("Failed to load config.properties", e);
         }
     }
@@ -27,6 +33,9 @@ public final class Config {
      */
     public static String get(String key) {
         String value = PROPS.getProperty(key);
+        if (value == null) {
+            logger.error("Missing required config key: {}", key);
+        }
         return Objects.requireNonNull(value, "Missing config key: " + key).trim();
     }
 

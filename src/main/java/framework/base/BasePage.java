@@ -9,6 +9,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 
 /**
@@ -18,6 +21,7 @@ import java.time.Duration;
  */
 
 public abstract class BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(BasePage.class);
     protected final AndroidDriver driver;
     protected final Duration explicitTimeout;
     protected final WebDriverWait wait;
@@ -260,11 +264,16 @@ public abstract class BasePage {
      */
     public void scrollIntoViewIfNeeded(By locator) {
         if (isVisible(locator)) return;
+
+        logger.debug("Scrolling to find element: {}", locator);
+
         for(int i = 0; i < 3; i++)
         {scroll("down"); if (isVisible(locator)) return;}
         for(int i = 0; i < 5; i++)
         {scroll("up"); if (isVisible(locator)) return;}
+
         if (!isVisible(locator)) {
+            logger.error("Element not found after scrolling: {}", locator);
             throw new AssertionError("Element not found after scrolling: " + locator);
         }
     }

@@ -1,5 +1,6 @@
 package tests;
 
+import framework.pages.CreateBugPage;
 import io.appium.java_client.AppiumBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,20 +9,24 @@ import tests.base.BaseTest;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CreateBugPageTests extends BaseTest {
+    //Make sure to run both tests to be able to run the edit existing bug test (We need a fixed id)
+
 
     @Test
     @DisplayName("Create a bug with all fields")
     void createBugWithAllFields() {
-        // ensureHomePage() is already called in setUp(), so we start from HomePage
+        CreateBugPage createBugPage = new CreateBugPage (driver, TIMEOUT);
+        if (!createBugPage.assertOnPage()){
+            // Navigate from HomePage to CreateBugPage
+            assertTrue(getHomePage().assertOnPage(), "Should start on HomePage");
+
+            getHomePage().clickCreateBug();
+        }
+        assertTrue(getCreateBugPage().assertOnPage(), "Create Bug page should be visible");
 
         String bugId = generateUniqueBugId();
         String bugTitle = "Best band?";
 
-        // Navigate from HomePage to CreateBugPage
-        assertTrue(getHomePage().assertOnPage(), "Should start on HomePage");
-
-        getHomePage().clickCreateBug();
-        assertTrue(getCreateBugPage().assertOnPage(), "Create Bug page should be visible");
 
         // Fill out the bug form
         getCreateBugPage()

@@ -8,10 +8,15 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.time.Duration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class DriverFactory {
+    private static final Logger logger = LoggerFactory.getLogger(DriverFactory.class);
     private static final ThreadLocal<AndroidDriver> DRIVER = new ThreadLocal<>();
 
-    private DriverFactory() {}
+    private DriverFactory() {
+    }
 
     public static AndroidDriver getDriver() {
         AndroidDriver d = DRIVER.get();
@@ -25,12 +30,16 @@ public final class DriverFactory {
     public static void quitDriver() {
         AndroidDriver d = DRIVER.get();
         if (d != null) {
+            logger.info("Quitting AndroidDriver");
             d.quit();
             DRIVER.remove();
         }
     }
 
     private static AndroidDriver create() {
+        logger.info("Creating AndroidDriver - Server: {}, Device: {}",
+                Config.get("server.url"), Config.get("deviceName"));
+
         String appRelative = Config.get("app.path");
         String appAbsolute = Paths.get(appRelative).toAbsolutePath().toString();
 
@@ -57,8 +66,10 @@ public final class DriverFactory {
         try {
             AndroidDriver drv = new AndroidDriver(new URL(Config.get("server.url")), options);
             drv.manage().timeouts().implicitlyWait(Duration.ZERO);
+            logger.info("AndroidDriver created successfully");
             return drv;
         } catch (Exception e) {
+            logger.error("Failed to create AndroidDriver", e);
             throw new RuntimeException("Failed to start AndroidDriver. Is Appium running? " +
                     "Server: " + Config.get("server.url") + ", app: " + appAbsolute, e);
         }

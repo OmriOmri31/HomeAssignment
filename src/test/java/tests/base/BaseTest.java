@@ -8,6 +8,8 @@ import framework.pages.ViewBugsPage;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import java.time.format.DateTimeFormatter;
  * All test classes should extend this class.
  */
 public abstract class BaseTest {
+    private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
 
     protected AndroidDriver driver;
     protected static final Duration TIMEOUT = Duration.ofSeconds(15);
@@ -34,6 +37,7 @@ public abstract class BaseTest {
      */
     @BeforeEach
     void setUp() {
+        logger.info("=== Starting Test ===");
         driver = DriverFactory.getDriver();
         resetPageObjects();
         ensureHomePage();
@@ -46,6 +50,7 @@ public abstract class BaseTest {
     void tearDown() {
         DriverFactory.quitDriver();
         resetPageObjects();
+        logger.info("=== Test Completed ===");
     }
 
     /**

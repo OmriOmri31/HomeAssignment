@@ -6,6 +6,8 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
@@ -14,6 +16,8 @@ import java.time.Duration;
  * Provides methods to modify existing bug details and save or cancel changes.
  */
 public class EditBugPage extends BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(EditBugPage.class);
+
     private final By screenRoot;
     private final By bugTitle;
     private final By bugSteps;
@@ -201,6 +205,7 @@ public class EditBugPage extends BasePage {
      * Saves all changes made to the bug.
      */
     public void save() {
+        logger.info("Saving bug changes");
         scrollIntoViewIfNeeded(saveChanges);
         click(saveChanges);
     }
@@ -208,6 +213,7 @@ public class EditBugPage extends BasePage {
      * Cancels editing and discards all changes.
      */
     public void cancel() {
+        logger.info("Canceling bug edit");
         scrollIntoViewIfNeeded(cancelEditing);
         click(cancelEditing);
     }

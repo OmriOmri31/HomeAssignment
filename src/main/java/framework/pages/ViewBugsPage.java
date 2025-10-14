@@ -6,6 +6,8 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ViewBugsPage extends BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(ViewBugsPage.class);
 
     private final By screenRoot;
     private final By searchBugs;
@@ -66,6 +69,7 @@ public class ViewBugsPage extends BasePage {
      * @return this ViewBugsPage instance for method chaining
      */
     public ViewBugsPage searchForBugs(String value) {
+        logger.info("Searching for bugs: '{}'", value);
         type(searchBugs, normalize(value));
         updateBugList();
         return this;
@@ -133,13 +137,20 @@ public class ViewBugsPage extends BasePage {
      * and returns an empty arry of strings
      */
     private void updateBugList() {
+        // Check if bugList element exists and is visible
+        if (!isVisible(bugListLocator)) {
+            logger.warn("Bug list element not visible - page may not be loaded correctly");
+            this.bugList = new String[0];
+            return;
+        }
+
         WebElement list = waitVisible(bugListLocator);
 
         try {
             wait.withTimeout(Duration.ofSeconds(2))
                     .until(d -> !list.findElements(AppiumBy.className("android.widget.TextView")).isEmpty());
         } catch (TimeoutException e) {
-            // List is empty, which is valid
+            logger.info("Bug list is empty - no bugs found");
             this.bugList = new String[0];
             return;
         }
@@ -155,8 +166,8 @@ public class ViewBugsPage extends BasePage {
         }
 
         this.bugList = accumulatedBugs.toArray(new String[0]);
+        logger.info("Found {} bugs in list", this.bugList.length);
     }
-
     public void updateBugListAfterDeletion() {
         accumulatedBugs.clear();
         updateBugList();
@@ -179,6 +190,7 @@ public class ViewBugsPage extends BasePage {
      * @throws AssertionError if the bug is not found after scrolling
      */
     public ViewBugsPage editBugById(String idText) {
+        logger.info("Opening edit page for bug ID: {}", idText);
         By row = io.appium.java_client.AppiumBy.androidUIAutomator(
                 "new UiSelector().textContains(\"(ID: " + idText + "\")");
         scrollIntoViewIfNeeded(row);
@@ -207,6 +219,7 @@ public class ViewBugsPage extends BasePage {
      * @throws AssertionError if the bug is not found
      */
     public ViewBugsPage deleteBugById(String idText) {
+        logger.warn("Deleting bug ID: {}", idText);
         By row = io.appium.java_client.AppiumBy.androidUIAutomator(
                 "new UiSelector().textContains(\"(ID: " + idText + "\")");
         scrollIntoViewIfNeeded(row);
