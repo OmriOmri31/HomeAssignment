@@ -135,10 +135,10 @@ public abstract class BasePage {
 
         if (normalized.equals("down")) {
             startY = height * 3 / 4;
-            endY = height / 4;
+            endY = height / 2;
         } else {
             startY = height / 2;
-            endY = height * 65 / 100;
+            endY = height * 65 / 70;
         }
 
         performSwipe(centerX, startY, centerX, endY);
@@ -147,9 +147,10 @@ public abstract class BasePage {
 
     public void scrollIntoViewIfNeeded(By locator) {
         if (isVisible(locator)) return;
-        scroll("down"); if (isVisible(locator)) return;
-        scroll("up"); if (isVisible(locator)) return;
-        for (int i = 0; i < 2 && !isVisible(locator); i++) { scroll("down"); }
+        for(int i = 0; i < 3; i++)
+        {scroll("down"); if (isVisible(locator)) return;}
+        for(int i = 0; i < 5; i++)
+        {scroll("up"); if (isVisible(locator)) return;}
     }
 
     private void performSwipe(int startX, int startY, int endX, int endY) {
@@ -162,7 +163,7 @@ public abstract class BasePage {
         swipe.addAction(finger.createPointerMove(Duration.ZERO,
                 org.openqa.selenium.interactions.PointerInput.Origin.viewport(), startX, startY));
         swipe.addAction(finger.createPointerDown(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
-        swipe.addAction(finger.createPointerMove(Duration.ofMillis(200),
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(900),
                 org.openqa.selenium.interactions.PointerInput.Origin.viewport(), endX, endY));
         swipe.addAction(finger.createPointerUp(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
 

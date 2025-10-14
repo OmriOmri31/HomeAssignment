@@ -7,6 +7,8 @@ import org.openqa.selenium.WebElement;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +25,7 @@ public class ViewBugsPage extends BasePage {
     private String[] bugList;
     private final By buttonEdit;
     private final By buttonDelete;
+    private Set<String> accumulatedBugs = new LinkedHashSet<>();
 
     public ViewBugsPage(AndroidDriver driver, Duration explicitTimeout) {
         super(driver, explicitTimeout);
@@ -82,11 +85,23 @@ public class ViewBugsPage extends BasePage {
     private void updateBugList() {
         WebElement list = waitVisible(bugListLocator);
         wait.until(d -> !list.findElements(io.appium.java_client.AppiumBy.className("android.widget.TextView")).isEmpty());
-        this.bugList = list.findElements(io.appium.java_client.AppiumBy.className("android.widget.TextView"))
+
+        String[] visibleBugs = list.findElements(io.appium.java_client.AppiumBy.className("android.widget.TextView"))
                 .stream()
                 .map(org.openqa.selenium.WebElement::getText)
                 .filter(t -> t.contains("(ID:"))
                 .toArray(String[]::new);
+
+        for (String bug : visibleBugs) {
+            accumulatedBugs.add(bug);
+        }
+
+        this.bugList = accumulatedBugs.toArray(new String[0]);
+    }
+
+    public void updateBugListAfterDeletion() {
+        accumulatedBugs.clear();
+        updateBugList();
     }
 
     public ViewBugsPage editBugByTitle(String value) {
@@ -98,15 +113,14 @@ public class ViewBugsPage extends BasePage {
     }
 
     public ViewBugsPage editBugById(String idText) {
-        updateBugList();
-        for (int i = 0; i < bugList.length; i++) {
-            if (extractId(bugList[i]).equals(idText)) {
-                click(io.appium.java_client.AppiumBy.androidUIAutomator(
-                        "new UiSelector().text(\"Edit\").instance(" + i + ")"));
-                return this;
-            }
-        }
-        throw new IllegalArgumentException("Bug with ID: " + idText + " not found");
+        By row = io.appium.java_client.AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"(ID: " + idText + "\")");
+        scrollIntoViewIfNeeded(row);
+        By editForRow = io.appium.java_client.AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"(ID: " + idText + "\")" +
+                        ".fromParent(new UiSelector().text(\"Edit\"))");
+        click(editForRow);
+        return this;
     }
 
     public ViewBugsPage deleteBugByTitle(String value) {
@@ -118,14 +132,14 @@ public class ViewBugsPage extends BasePage {
     }
 
     public ViewBugsPage deleteBugById(String idText) {
-        for (int i = 0; i < bugList.length; i++) {
-            if (extractId(bugList[i]).equals(idText)) {
-                click(io.appium.java_client.AppiumBy.androidUIAutomator(
-                        "new UiSelector().text(\"Delete\").instance(" + i + ")"));
-                return this;
-            }
-        }
-        throw new IllegalArgumentException("Bug with ID: " + idText + " not found");
+        By row = io.appium.java_client.AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"(ID: " + idText + "\")");
+        scrollIntoViewIfNeeded(row);
+        By deleteForRow = io.appium.java_client.AppiumBy.androidUIAutomator(
+                "new UiSelector().textContains(\"(ID: " + idText + "\")" +
+                        ".fromParent(new UiSelector().text(\"Delete\"))");
+        click(deleteForRow);
+        return this;
     }
 
     @Deprecated
