@@ -80,10 +80,9 @@ public class CreateBugPage extends BasePage {
 
         try { Thread.sleep(300); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
-        // Clear first
         element.clear();
 
-        // Use Appium's setValue through executeScript
+        //
         driver.executeScript("mobile: type",
                 java.util.Map.of("elementId", ((org.openqa.selenium.remote.RemoteWebElement) element).getId(),
                         "text", normalized));
@@ -245,6 +244,7 @@ public class CreateBugPage extends BasePage {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " value must not be blank");
         }
+        value = normalize(value);
 
         click(field);
 

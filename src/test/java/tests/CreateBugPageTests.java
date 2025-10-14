@@ -54,8 +54,5 @@ class CreateBugPageTests extends BaseTest {
         getViewBugsPage().editBugById(bugId);
         assertTrue(getEditBugPage().assertOnPage(), "Edit page should be visible for the created bug");
 
-        // Return to HomePage
-        getViewBugsPage().clickHome();
-        assertTrue(getHomePage().assertOnPage(), "Returned to HomePage after test completed");
     }
 }

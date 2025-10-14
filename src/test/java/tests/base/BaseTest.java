@@ -13,6 +13,11 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Base class for all test classes providing common setup, teardown, and utility methods.
+ * Manages driver lifecycle and page object initialization.
+ * All test classes should extend this class.
+ */
 public abstract class BaseTest {
 
     protected AndroidDriver driver;
@@ -24,6 +29,9 @@ public abstract class BaseTest {
     private ViewBugsPage viewBugsPage;
     private EditBugPage editBugPage;
 
+    /**
+     * Initializes the driver and ensures the app starts on the home page before each test.
+     */
     @BeforeEach
     void setUp() {
         driver = DriverFactory.getDriver();
@@ -31,12 +39,19 @@ public abstract class BaseTest {
         ensureHomePage();
     }
 
+    /**
+     * Quits the driver and resets page objects after each test.
+     */
     @AfterEach
     void tearDown() {
         DriverFactory.quitDriver();
         resetPageObjects();
     }
 
+    /**
+     * Ensures the app is on the home page by detecting current page and navigating if needed.
+     * Attempts to identify the current page and click Home, or scrolls up if unrecognized.
+     */
     protected void ensureHomePage() {
         Duration shortTimeout = Duration.ofSeconds(1);
         HomePage home = new HomePage(driver, shortTimeout);
@@ -61,11 +76,21 @@ public abstract class BaseTest {
         waitFor(500);
     }
 
+    /**
+     * Navigates to the home page and returns the HomePage instance
+     *
+     * @return the HomePage instance
+     */
     protected HomePage navigateToHomePage() {
         ensureHomePage();
         return getHomePage();
     }
 
+    /**
+     * Gets or creates the HomePage instance
+     *
+     * @return the HomePage instance
+     */
     protected HomePage getHomePage() {
         if (homePage == null) {
             homePage = new HomePage(driver, TIMEOUT);
@@ -73,6 +98,11 @@ public abstract class BaseTest {
         return homePage;
     }
 
+    /**
+     * Gets or creates the CreateBugPage instance
+     *
+     * @return the CreateBugPage instance
+     */
     protected CreateBugPage getCreateBugPage() {
         if (createBugPage == null) {
             createBugPage = new CreateBugPage(driver, TIMEOUT);
@@ -80,6 +110,11 @@ public abstract class BaseTest {
         return createBugPage;
     }
 
+    /**
+     * Gets or creates the ViewBugsPage instance
+     *
+     * @return the ViewBugsPage instance
+     */
     protected ViewBugsPage getViewBugsPage() {
         if (viewBugsPage == null) {
             viewBugsPage = new ViewBugsPage(driver, TIMEOUT);
@@ -87,6 +122,11 @@ public abstract class BaseTest {
         return viewBugsPage;
     }
 
+    /**
+     * Gets or creates the EditBugPage instance
+     *
+     * @return the EditBugPage instance
+     */
     protected EditBugPage getEditBugPage() {
         if (editBugPage == null) {
             editBugPage = new EditBugPage(driver, TIMEOUT);
@@ -94,6 +134,9 @@ public abstract class BaseTest {
         return editBugPage;
     }
 
+    /**
+     * Resets all page object instances to null, forcing recreation on next access
+     */
     private void resetPageObjects() {
         homePage = null;
         createBugPage = null;
@@ -101,22 +144,30 @@ public abstract class BaseTest {
         editBugPage = null;
     }
 
+    /**
+     * Generates  a unique bug ID based on current timestamp in milliseconds
+     * which makes the test reusable
+     * @return a unique bug ID string
+     */
     protected String generateUniqueBugId() {
         return String.valueOf(System.currentTimeMillis());
     }
 
+    /**
+     * Returns today's date in dd/MM/yyyy format.
+     *
+     * @return today's date as a formatted string
+     */
     protected String today() {
         return LocalDate.now().format(DMY);
     }
 
-    protected String yesterday() {
-        return LocalDate.now().minusDays(1).format(DMY);
-    }
-
-    protected String formatDate(LocalDate date) {
-        return date.format(DMY);
-    }
-
+    /**
+     * Pauses execution for the specified duration.
+     * Used  for timing sensitive operations where explicit waits aren't suitable
+     *
+     * @param milliseconds the duration to wait in milliseconds
+     */
     protected void waitFor(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
